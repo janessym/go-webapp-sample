@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/glebarez/sqlite"
 	"github.com/ybkuroki/go-webapp-sample/config"
 	"github.com/ybkuroki/go-webapp-sample/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -71,10 +71,14 @@ func connectDatabase(logger logger.Logger, config *config.Config) (*gorm.DB, err
 	gormConfig := &gorm.Config{Logger: logger}
 
 	if config.Database.Dialect == POSTGRES {
-		dsn = fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", config.Database.Host, config.Database.Port, config.Database.Username, config.Database.Dbname, config.Database.Password)
+		dsn = fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+			config.Database.Host, config.Database.Port, config.Database.Username,
+			config.Database.Dbname, config.Database.Password)
 		return gorm.Open(postgres.Open(dsn), gormConfig)
 	} else if config.Database.Dialect == MYSQL {
-		dsn = fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8&parseTime=True&loc=Local", config.Database.Username, config.Database.Password, config.Database.Host, config.Database.Dbname)
+		dsn = fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8&parseTime=True&loc=Local",
+			config.Database.Username, config.Database.Password,
+			config.Database.Host, config.Database.Dbname)
 		return gorm.Open(mysql.Open(dsn), gormConfig)
 	}
 	return gorm.Open(sqlite.Open(config.Database.Host), gormConfig)
@@ -140,7 +144,8 @@ func (rep *repository) Preload(column string, conditions ...interface{}) *gorm.D
 	return rep.db.Preload(column, conditions...)
 }
 
-// Scopes pass current database connection to arguments `func(*DB) *DB`, which could be used to add conditions dynamically
+// Scopes pass current database connection to arguments `func(*DB) *DB`,
+// which could be used to add conditions dynamically
 func (rep *repository) Scopes(funcs ...func(*gorm.DB) *gorm.DB) *gorm.DB {
 	return rep.db.Scopes(funcs...)
 }
